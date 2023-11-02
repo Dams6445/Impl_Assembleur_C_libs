@@ -1,19 +1,30 @@
-section .data
-buf resb 1024 ; reserve 1024 bytes of memory for the input buffer
-
 global my_read
 section .text
-
 my_read:
+    ; Sauvegarde des registres qui doivent être préservés
     push rbp
-    mov rbp, rsp
-    mov rdi, 0    ; read from standard input (file descriptor 0)
-    mov rsi, buf  ; load the address of the input buffer
-    mov rdx, 1024 ; read up to 1024 bytes
-    mov eax, 0    ; set the system call number to 0 (read)
-    syscall       ; call the read system call
-    mov rdi, [rbp + 16] ; load the file descriptor argument
-    mov [rdi], rax      ; store the number of bytes read in the file descriptor
-    xor eax, eax        ; set the return value to 0
+    push rdi
+    push rsi
+    push rdx
+
+    ; Paramètres de l'appel système pour read():
+    ; rax = syscall number
+    ; rdi = file descriptor
+    ; rsi = pointer to buffer
+    ; rdx = count (number of bytes to read)
+    mov rax, 0          ; syscall number for read()
+    mov rdi, [rsp + 20] ; file descriptor (1st argument)
+    mov rsi, [rsp + 28] ; pointer to buffer (2nd argument)
+    mov rdx, [rsp + 36] ; count (3rd argument)
+
+    ; Appel système
+    syscall
+
+    ; Restaure les registres
+    pop rdx
+    pop rsi
+    pop rdi
     pop rbp
+
+    ; Retour de la fonction
     ret
