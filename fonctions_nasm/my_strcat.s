@@ -1,18 +1,32 @@
 global my_strcat
 section .text
-
 my_strcat:
-    push rbp
-    mov rbp, rsp
-    mov rsi, [rbp + 16] ; load the destination string
-    mov rdi, [rbp + 24] ; load the source string
-    mov rcx, 0          ; initialize the counter to 0
-    cld                 ; clear the direction flag
-    repne scasb         ; find the end of the destination string
-    dec rdi             ; back up to the null terminator
-    mov rdx, rdi        ; save the address of the null terminator
-    mov rsi, [rbp + 24] ; load the source string again
-    rep movsb           ; copy the source string to the destination string
-    mov byte [rdx], 0   ; add a null terminator to the end of the concatenated string
-    pop rbp
+    ; Les arguments sont passés via les registres rdi (dest) et rsi (src)
+    ; Sauvegarde des registres
+    push rdi
+    push rsi
+
+    ; Trouver le caractère nul de la chaîne dest
+    ; rdi pointe vers dest
+find_end_of_dest:
+    mov al, byte [rdi]    ; Charger le caractère actuel dans al
+    test al, al           ; Tester si al est nul
+    jz copy_src           ; Si c'est le cas, passer à la copie de src
+    inc rdi               ; Sinon, passer au caractère suivant dans dest
+    jmp find_end_of_dest
+
+    ; Copier la chaîne src à la fin de dest
+copy_src:
+    mov al, byte [rsi]    ; Charger le caractère actuel de src dans al
+    mov byte [rdi], al    ; Copier al à la position actuelle de dest
+    test al, al           ; Tester si al est nul
+    jz finish             ; Si c'est le cas, terminer
+    inc rdi               ; Passer au caractère suivant dans dest
+    inc rsi               ; Passer au caractère suivant dans src
+    jmp copy_src
+
+finish:
+    ; Restaurer les registres et retourner
+    pop rsi
+    pop rdi
     ret

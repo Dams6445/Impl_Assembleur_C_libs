@@ -1,30 +1,32 @@
 global my_read
 section .text
 my_read:
-    ; Sauvegarde des registres qui doivent être préservés
-    push rbp
-    push rdi
-    push rsi
-    push rdx
-
-    ; Paramètres de l'appel système pour read():
-    ; rax = syscall number
-    ; rdi = file descriptor
-    ; rsi = pointer to buffer
-    ; rdx = count (number of bytes to read)
-    mov rax, 0          ; syscall number for read()
-    mov rdi, [rsp + 20] ; file descriptor (1st argument)
-    mov rsi, [rsp + 28] ; pointer to buffer (2nd argument)
-    mov rdx, [rsp + 36] ; count (3rd argument)
+    ; Numéro de l'appel système pour 'read' sous Linux x86-64
+    mov rax, 0
 
     ; Appel système
     syscall
 
-    ; Restaure les registres
-    pop rdx
-    pop rsi
-    pop rdi
-    pop rbp
+    ; Vérifier si une erreur s'est produite (valeur de retour dans rax)
+    cmp rax, -4096  ; Les erreurs sont signalées par des valeurs négatives
+    jge .success    ; Si rax >= -4096, alors pas d'erreur
 
-    ; Retour de la fonction
+    ; Si c'est une erreur, -rax est le code d'erreur
+    neg rax         ; Convertir rax en valeur positive
+    mov rdi, rax    ; Mettre le code d'erreur dans rdi
+    call set_errno  ; Appeler set_errno
+
+    ; Mettre le code d'erreur en valeur négative dans rax pour le retourner
+    neg rax
+
+.success:
+    ret
+
+section .data
+errno resq 1      ; Réserver de l'espace pour errno
+
+section .text
+set_errno:
+    ; Mettre le code d'erreur (rdi) dans errno
+    mov [errno], rdi
     ret

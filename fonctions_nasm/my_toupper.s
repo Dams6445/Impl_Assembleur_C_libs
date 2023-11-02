@@ -1,15 +1,20 @@
 global my_toupper
 section .text
-
 my_toupper:
-    push rbp
-    mov rbp, rsp
-    movzx eax, byte [rbp + 16] ; load the character to convert
-    cmp al, 'a'                ; compare with 'a'
-    jb .end                    ; if less than 'a', return the original character
-    cmp al, 'z'                ; compare with 'z'
-    ja .end                    ; if greater than 'z', return the original character
-    sub al, 32                 ; convert to uppercase by subtracting 32
-.end:
-    pop rbp
+    ; Convertir la valeur d'entrée en unsigned char
+    ; (c'est-à-dire, prendre les 8 bits de poids faible de RDI)
+    movzx rdi, dil
+    
+    ; Vérifier si le caractère est une lettre minuscule (entre 'a' et 'z')
+    cmp dil, 'a'
+    jl .not_lowercase
+    cmp dil, 'z'
+    jg .not_lowercase
+
+    ; Convertir la lettre minuscule en majuscule
+    sub dil, 0x20
+
+.not_lowercase:
+    ; Retourner le résultat comme un int (RAX)
+    mov eax, edi
     ret

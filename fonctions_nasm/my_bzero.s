@@ -1,12 +1,20 @@
 global my_bzero
 section .text
-
 my_bzero:
-    push rbp
-    mov rbp, rsp
-    mov rdi, [rbp + 16] ; load the address of the memory to zero
-    mov rcx, [rbp + 24] ; load the number of bytes to zero
-    xor eax, eax        ; set return value to 0
-    rep stosb           ; zero the memory
-    pop rbp
+    ; rdi: pointeur vers la zone mémoire à remplir
+    ; rsi: nombre d'octets à écrire
+
+    ; Vérifier si le nombre d'octets à écrire est zéro
+    test rsi, rsi
+    jz .end
+
+    ; Remplir la mémoire avec des zéros
+    xor rax, rax          ; Mettre 0 dans rax
+.loop:
+    mov [rdi], al         ; Écrire la valeur de rax (0) à l'adresse pointée par rdi
+    inc rdi               ; Passer à l'adresse mémoire suivante
+    dec rsi               ; Décrémenter le compteur
+    jnz .loop             ; Continuer la boucle si rsi n'est pas zéro
+
+.end:
     ret
