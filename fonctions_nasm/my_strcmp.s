@@ -2,20 +2,20 @@ section .text
     global my_strcmp
 
 my_strcmp:
-    ; Charger la valeur à l'adresse 0x00007fffffffde30 dans rdi
-    mov rdi, qword [0x00007fffffffde30]
 
-    ; Charger la valeur à l'adresse 0x00007fffffffde38 dans rsi
-    mov rsi, qword [0x00007fffffffde38]
-    
-    ; rdi: adresse de la première chaîne (str1)
+    ; rdi: adresse de la seconde chaîne (str1)
+    mov rdi, [rsp+16]
+    mov rdi, [rdi]
     ; rsi: adresse de la seconde chaîne (str2)
+    mov rsi, [rsp+24]
+    mov rsi, [rsi]
+    
 
     .loop:
         ; Charger le caractère courant de str1 dans al
-        mov al, byte [rdi]
+        mov al, dil
         ; Charger le caractère courant de str2 dans bl
-        mov bl, byte [rsi]
+        mov bl, sil
 
         ; Comparer les caractères
         cmp al, bl
@@ -25,9 +25,8 @@ my_strcmp:
         ; Si on a atteint la fin des chaînes (caractère nul), sortir de la boucle
         test al, al
         jz .equal
-        test bl, bl
-        jz .equal
 
+        ; trouver un moyen pour que l'incrementation fasse une suppression de la première lettre et pas un mofification de a en b
         ; Passer au caractère suivant
         inc rdi
         inc rsi
