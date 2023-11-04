@@ -100,20 +100,59 @@ void test_isalpha () {
     }
 }
 
+int c_diff(const char *path1, const char *path2) {
+    FILE *f1, *f2;
+    int ch1, ch2;
+
+    f1 = fopen(path1, "r");
+    if (f1 == NULL) {
+        perror("Erreur lors de l'ouverture du premier fichier");
+        exit(1);
+    }
+
+    f2 = fopen(path2, "r");
+    if (f2 == NULL) {
+        perror("Erreur lors de l'ouverture du deuxième fichier");
+        fclose(f1);
+        exit(1);
+    }
+
+    while (1) {
+        ch1 = fgetc(f1);
+        ch2 = fgetc(f2);
+
+        if (ch1 != ch2) {
+            fclose(f1);
+            fclose(f2);
+            return 1; // Les fichiers sont différents
+        }
+
+        if (ch1 == EOF && ch2 == EOF) {
+            break; // Les deux fichiers ont été lus jusqu'à la fin
+        }
+    }
+
+    fclose(f1);
+    fclose(f2);
+    return 0; // Les fichiers sont identiques
+}
+
 void test_puts () {
     int ret1, ret2;
     char *puts_string;
 
-    puts_string = "hello world";
+    puts_string = "hello world\\n\\0\\x01";
     freopen("/tmp/asmtest1", "w", stdout);
     ret1 = puts(puts_string);
+    fflush(stdout);
     freopen("/tmp/asmtest2", "w", stdout);
     ret2 = ABICHECK_my_puts(puts_string);
+    fflush(stdout);
     freopen("/dev/tty", "w", stdout);
     assert(ret1 >= 0);
     expect(ret2 >= 0,
             "hello world", 0); // check return
-    expect(system("diff -q /tmp/asmtest1 /tmp/asmtest2 &>/dev/null") == 0,
+    expect(c_diff("/tmp/asmtest1", "/tmp/asmtest2") == 0,
             "hello world", 0); // check written
                                //
     char bigbuf[150000] = {0};
@@ -121,16 +160,18 @@ void test_puts () {
     puts_string = bigbuf;
     freopen("/tmp/asmtest1", "w", stdout);
     ret1 = puts(puts_string);
+    fflush(stdout);
     freopen("/tmp/asmtest2", "w", stdout);
     ret2 = ABICHECK_my_puts(puts_string);
+    fflush(stdout);
     freopen("/dev/tty", "w", stdout);
     assert(ret1 >= 0);
     expect(ret2 >= 0,
             "0xff * 85535", 0); // check return
-    expect(system("diff -q /tmp/asmtest1 /tmp/asmtest2 &>/dev/null") == 0,
+    expect(c_diff("/tmp/asmtest1", "/tmp/asmtest2") == 0,
             "0xff * 85535", 0); // check written
 
-    puts_string = "hello world";
+    puts_string = "hello world\\n\\n\\0\\xff";
     fclose(stdout);
     ret1 = puts(puts_string);
     ret2 = ABICHECK_my_puts(puts_string);
@@ -675,7 +716,7 @@ if True or not Path("test_functions").is_file():
     correction_c = Path("correction.c")
     if not correction_c.is_file():
         correction_c.write_text(correction_c_template)
-    os.system(f"gcc -no-pie -g {objs} abi_check.o correction.c -o test_functions")
+    os.system(f"gcc -fno-builtin -no-pie -g {objs} abi_check.o correction.c -o test_functions")
     if RM:
         os.system(f"rm correction.c")
         os.system(f"rm abi_check.o")
