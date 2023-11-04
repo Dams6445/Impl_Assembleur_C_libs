@@ -4,7 +4,6 @@ my_strcat:
     ; Les arguments sont passés via les registres rdi (dest) et rsi (src)
     ; Sauvegarde des registres
     push rdi
-    push rsi
 
     ; Trouver le caractère nul de la chaîne dest
     ; rdi pointe vers dest
@@ -27,6 +26,5 @@ copy_src:
 
 finish:
     ; Restaurer les registres et retourner
-    pop rsi
-    pop rdi
+    pop rax
     ret

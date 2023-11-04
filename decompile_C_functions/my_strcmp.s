@@ -5,24 +5,20 @@ my_strcmp:
 
     ; rdi: adresse de la première chaîne (str1)
     ; rsi: adresse de la seconde chaîne (str2)
-    xor rax, rax
 
     .loop:
         ; Charger le caractère courant de str1 dans al
-        mov r8b, [rdi]
+        mov al, [rdi]
         ; Charger le caractère courant de str2 dans bl
-        mov r9b, [rsi]
+        mov bl, [rsi]
 
         ; Comparer les caractères
-        cmp r8b, r9b
-        ; Si les caractères sont superieur, sortir de la boucle
-        ja .superieur
-        ; Si les caractères sont inférieur, sortir de la boucle
-        jb .inferieur
-
+        cmp al, bl
+        ; Si les caractères sont différents, sortir de la boucle
+        jne .different
 
         ; Si on a atteint la fin des chaînes (caractère nul), sortir de la boucle
-        test r8b, r8b
+        test al, al
         jz .equal
 
         ; Passer au caractère suivant
@@ -37,15 +33,9 @@ my_strcmp:
         xor rax, rax
         ; Retourner
         ret
-    
-    .superieur:
-        ; Mettre 1 dans rax (valeur de retour)
-        mov rax, 1
-        ; Retourner
-        ret
-    
-    .inferieur:
-        ; Mettre -1 dans rax (valeur de retour)
-        mov rax, -1
-        ; Retourner
+
+    .different:
+        ; Retourner la différence entre les caractères (al - bl)
+        sub al, bl
+        movsx rax, al  ; Étendre la différence avec des zéros pour qu'elle soit sur 64 bits
         ret
