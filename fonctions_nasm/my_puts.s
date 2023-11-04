@@ -1,5 +1,5 @@
+global my_puts  ; Rend la fonction my_puts accessible depuis d'autres fichiers
 section .text
-    global my_puts  ; Rend la fonction my_puts accessible depuis d'autres fichiers
 
 my_puts:
     mov r8, rdi    ; Sauvegarde l'adresse de la chaîne de caractères (passée en rdi) dans r8
