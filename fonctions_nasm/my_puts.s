@@ -1,44 +1,28 @@
-global my_puts
-section .data
-newline db 0xA         ; Newline character
-
 section .text
+    global my_puts  ; Rend la fonction my_puts accessible depuis d'autres fichiers
+
 my_puts:
-    ; Input: rdi points to the null-terminated string
-    ; Output: String written to stdout, rax contains number of bytes written
+    mov r8, rdi    ; Sauvegarde l'adresse de la chaîne de caractères (passée en rdi) dans r8
+    xor r9, r9     ; Initialise r9 à 0, qui sera utilisé pour compter le nombre de caractères
 
-    ; Save registers that will be modified
-    push rdi
-    push rdx
+count:
+    inc r9         ; Incrémente le compteur de caractères
+    inc rdi        ; Passe au caractère suivant dans la chaîne
+    cmp BYTE [rdi], 0x0  ; Compare le caractère actuel avec 0 (fin de chaîne)
+    je end         ; Si c'est la fin de la chaîne, saute à l'étiquette 'end'
+    jmp count      ; Sinon, continue à compter
 
-    ; Find the length of the string (excluding null terminator)
-    xor rdx, rdx      ; rdx = 0 (counter for length)
-    xor rcx, rcx      ; Clear rcx
-    mov cl, byte [rdi] ; Load first character of the string
-    find_length:
-        cmp cl, 0      ; Check for null terminator
-        je  end_find_length
-        inc rdx        ; Increment length counter
-        inc rdi        ; Move to next character
-        mov cl, byte [rdi] ; Load next character
-        jmp find_length
-    end_find_length:
+end:
+    mov rax, 0x1   ; Met 1 dans rax, indiquant l'appel système write
+    mov rdi, 0x1   ; Met 1 dans rdi, indiquant le descripteur de fichier STDOUT
+    mov rsi, r8    ; Met l'adresse de la chaîne dans rsi
+    mov rdx, r9    ; Met la longueur de la chaîne dans rdx
+    syscall        ; Appelle le système pour écrire la chaîne sur STDOUT
+    cmp rax, 0x0   ; Compare la valeur de retour (nombre de caractères écrits) avec 0
+    jge no_error   ; Si >= 0, saute à l'étiquette 'no_error'
+    mov rax, -1    ; Sinon, met -1 dans rax pour indiquer une erreur
+    ret            ; Retourne
 
-    ; rdx now contains the length of the string
-
-    ; Perform write syscall to write string to stdout
-    pop rdi           ; Restore original rdi (pointer to string)
-    mov rax, 1        ; syscall: write
-    mov rdi, 1        ; file descriptor: stdout
-    syscall
-
-    ; Write newline character to stdout
-    mov rax, 1        ; syscall: write
-    mov rdi, 1        ; file descriptor: stdout
-    lea rsi, [newline] ; pointer to newline character
-    mov rdx, 1        ; length: 1 byte
-    syscall
-
-    ; Restore registers and return
-    pop rdx
-    ret
+no_error:
+    mov rax, 1     ; Met 1 dans rax pour indiquer un succès
+    ret            ; Retourne
