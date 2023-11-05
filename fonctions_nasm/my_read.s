@@ -5,19 +5,19 @@ section .text
 
 my_read:
     ; Sauvegarde des arguments
-    mov r8, rdi    ; Sauvegarde le descripteur de fichier (passé en rdi) dans r8
-    mov r9, rsi    ; Sauvegarde l'adresse du buffer (passé en rsi) dans r9
-    mov r10, rdx   ; Sauvegarde la taille du buffer (passée en rdx) dans r10
+    ; mov r8, rdi    ; Sauvegarde le descripteur de fichier (passé en rdi) dans r8
+    ; mov r9, rsi    ; Sauvegarde l'adresse du buffer (passé en rsi) dans r9
+    ; mov r10, rdx   ; Sauvegarde la taille du buffer (passée en rdx) dans r10
 
     ; Appel système read
-    mov rax, 0x0   ; Met 0 dans rax, indiquant l'appel système read
-    mov rdi, r8    ; Met le descripteur de fichier dans rdi
-    mov rsi, r9    ; Met l'adresse du buffer dans rsi
-    mov rdx, r10   ; Met la taille du buffer dans rdx
+    xor rax, rax   ; Met 0 dans rax, indiquant l'appel système read
+    ; mov rdi, r8    ; Met le descripteur de fichier dans rdi
+    ; mov rsi, r9    ; Met l'adresse du buffer dans rsi
+    ; mov rdx, r10   ; Met la taille du buffer dans rdx
     syscall        ; Appelle le système pour lire les données dans le buffer
 
     ; Gestion des erreurs
-    cmp rax, 0x0   ; Compare la valeur de retour (nombre d'octets lus) avec 0
+    test rax, rax   ; Compare la valeur de retour (nombre d'octets lus) avec 0
     jge no_error   ; Si >= 0, saute à l'étiquette 'no_error'
 
     ; En cas d'erreur
