@@ -4,23 +4,20 @@ extern __errno_location ; Déclare la fonction externe __errno_location
 section .text
 
 my_read:
-    ; Appel système read
-    xor rax, rax   
-    syscall         
+    xor rax, rax            ; RAZ de rax
+    syscall                 ; Appel système 0 : read
 
-    ; Gestion des erreurs
-    test rax, rax   ; Compare la valeur de retour (nombre d'octets lus) avec 0
-    jge no_error   ; Si >= 0, saute à l'étiquette 'no_error'
+    test rax, rax           ; Test si rax est null
+    jge no_error            ; Si rax >= 0, pas d'erreur
 
-    ; En cas d'erreur
-    neg rax        ; Met la valeur de retour dans rax à son opposé
-    mov rdi, rax   ; Met la valeur de retour dans rdi pour l'appel à __errno_location
-    call __errno_location ; Appelle __errno_location pour obtenir l'adresse de errno
-    mov [rax], rdi ; Écrit la valeur de errno à l'adresse retournée par __errno_location
-    push -1
-    pop rax
-    ret            ; Retourne
+    ;si erreur
+    neg rax                 ; Sinon, on met rax à -1
+    mov rdi, rax            ; On met rax dans rdi pour l'appel de __errno_location
+    call __errno_location   ; Appel de __errno_location
+    mov [rax], rdi          ; On met rdi dans l'adresse pointée par rax
+    push -1                 
+    pop rax                 ; On met -1 dans rax
+    ret            
 
 no_error:
-    ; En cas de succès
-    ret            ; Retourne
+    ret            

@@ -3,53 +3,33 @@ section .text
 
 my_strcmp:
 
-    ; rdi: adresse de la première chaîne (str1)
-    ; rsi: adresse de la seconde chaîne (str2)
-    xor rax, rax
+    loop:
+        mov r8b, [rdi]      ; Charger le caractère courant de str1 dans al
+        mov r9b, [rsi]      ; Charger le caractère courant de str2 dans bl
 
-    .loop:
-        ; Charger le caractère courant de str1 dans al
-        mov r8b, [rdi]
-        ; Charger le caractère courant de str2 dans bl
-        mov r9b, [rsi]
+        cmp r8b, r9b        ; Comparer les caractères
+        ja superieur        ; Si les caractères sont superieur, sortir de la boucle
+        jb inferieur        ; Si les caractères sont inférieur, sortir de la boucle
 
-        ; Comparer les caractères
-        cmp r8b, r9b
-        ; Si les caractères sont superieur, sortir de la boucle
-        ja .superieur
-        ; Si les caractères sont inférieur, sortir de la boucle
-        jb .inferieur
-
-
-        ; Si on a atteint la fin des chaînes (caractère nul), sortir de la boucle
-        test r8b, r8b
-        jz .equal
+        test r8b, r8b       ; Tester si le caractère est nul
+        jz equal            ; Si les caractères sont égaux, sortir de la boucle
 
         ; Passer au caractère suivant
         inc rdi
         inc rsi
 
-        ; Continuer la boucle
-        jmp .loop
+        jmp loop            ; Continuer la boucle
 
-    .equal:
-        ; Mettre 0 dans rax (valeur de retour)
-        xor rax, rax
-        ; Retourner
+    equal:
+        xor rax, rax        ; Mettre 0 dans rax
         ret
     
-    .superieur:
-        ; Mettre 1 dans rax (valeur de retour)
-        ; mov rax, 1
+    superieur:
         push 1
-        pop rax
-        ; Retourner
+        pop rax             ; Mettre 1 dans rax (valeur de retour)
         ret
     
-    .inferieur:
-        ; Mettre -1 dans rax (valeur de retour)
-        ; mov rax, -1
+    inferieur:
         push -1
-        pop rax
-        ; Retourner
+        pop rax             ; Mettre -1 dans rax
         ret
