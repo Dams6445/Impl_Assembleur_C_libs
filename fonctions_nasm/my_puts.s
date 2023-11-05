@@ -35,16 +35,26 @@ section .text
         ret            ; Retourne
 
     write_newline:
-        mov rax, 0x1   ; Met 1 dans rax, indiquant l'appel système write
-        mov rdi, 0x1   ; Met 1 dans rdi, indiquant le descripteur de fichier STDOUT
+        ;mov rax, 0x1   ; Met 1 dans rax, indiquant l'appel système write
+        push 1
+        pop rax
+        push 1
+        pop rdi
+        ; mov rdi, 0x1   ; Met 1 dans rdi, indiquant le descripteur de fichier STDOUT
         lea rsi, [rel newline] ; Met l'adresse de la chaîne de nouvelle ligne dans rsi
-        mov rdx, 1     ; Met la longueur de la chaîne de nouvelle ligne dans rdx
+        ; mov rdx, 1     ; Met la longueur de la chaîne de nouvelle ligne dans rdx
+        push 1
+        pop rdx
         syscall        ; Appelle le système pour écrire la nouvelle ligne sur STDOUT
         cmp rax, 0x0   ; Compare la valeur de retour (nombre de caractères écrits) avec 0
         jge error       ; Si >= 0, saute à l'étiquette 'error'
-        mov rax, -1     ; Met 1 dans rax pour indiquer un succès
+        ; mov rax, -1     ; Met 1 dans rax pour indiquer un succès
+        push -1
+        pop rax
         ret            ; Retourne
 
     error:
-        mov rax, 1    ; Met -1 dans rax pour indiquer une erreur
+        ; mov rax, 1    ; Met -1 dans rax pour indiquer une erreur
+        push 1
+        pop rax
         ret            ; Retourne
