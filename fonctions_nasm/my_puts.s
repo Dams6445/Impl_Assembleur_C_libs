@@ -8,7 +8,6 @@ section .text
         xor r9, r9     ; Initialise r9 à 0, qui sera utilisé pour compter le nombre de caractères
         cmp BYTE [r8], 0x0  ; Compare le premier caractère avec 0 (fin de chaîne)
         je write_newline ; Si c'est la fin de la chaîne, saute à l'étiquette 'write_newline'
-        jmp count      ; Sinon, continue à compter
         
     count:
         inc r9         ; Incrémente le compteur de caractères
@@ -47,14 +46,13 @@ section .text
         pop rdx
         syscall        ; Appelle le système pour écrire la nouvelle ligne sur STDOUT
         cmp rax, 0x0   ; Compare la valeur de retour (nombre de caractères écrits) avec 0
-        jge error       ; Si >= 0, saute à l'étiquette 'error'
-        ; mov rax, -1     ; Met 1 dans rax pour indiquer un succès
-        push -1
+        jl error       ; Si >= 0, saute à l'étiquette 'error'  
+        push 1         ; Met 1 dans rax pour indiquer un succès
         pop rax
         ret            ; Retourne
 
     error:
         ; mov rax, 1    ; Met -1 dans rax pour indiquer une erreur
-        push 1
+        push -1
         pop rax
         ret            ; Retourne

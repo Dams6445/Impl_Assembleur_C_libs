@@ -40,12 +40,16 @@ my_strcmp:
     
     .superieur:
         ; Mettre 1 dans rax (valeur de retour)
-        mov rax, 1
+        ; mov rax, 1
+        push 1
+        pop rax
         ; Retourner
         ret
     
     .inferieur:
         ; Mettre -1 dans rax (valeur de retour)
-        mov rax, -1
+        ; mov rax, -1
+        push -1
+        pop rax
         ; Retourner
         ret

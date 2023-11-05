@@ -25,7 +25,9 @@ my_read:
     mov rdi, rax   ; Met la valeur de retour dans rdi pour l'appel à __errno_location
     call __errno_location ; Appelle __errno_location pour obtenir l'adresse de errno
     mov [rax], rdi ; Écrit la valeur de errno à l'adresse retournée par __errno_location
-    mov rax, -1    ; Met -1 dans rax pour indiquer une erreur
+    ; mov rax, -1    ; Met -1 dans rax pour indiquer une erreur
+    push -1
+    pop rax
     ret            ; Retourne
 
 no_error:

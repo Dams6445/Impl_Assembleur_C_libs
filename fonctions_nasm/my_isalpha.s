@@ -15,10 +15,14 @@ my_isalpha:
 
 .not_alpha:
     ; Si ce n'est pas une lettre, retourne 0
-    mov rax, 0
+    ; mov rax, 0
+    push 0
+    pop rax
     ret
 
 .is_alpha:
     ; Si c'est une lettre, retourne une valeur non nulle (ici 1)
-    mov rax, 1
+    push 1
+    pop rax
+    ; mov rax, 1
     ret
